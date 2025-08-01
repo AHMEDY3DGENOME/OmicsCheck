@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 
 class PDF(FPDF):
@@ -66,18 +67,6 @@ def generate_pdf_report(gse_id: str, analysis: dict, output_dir: Path, orientati
         for key, value in qa_result.items():
             pdf.add_key_value(key, value)
 
-    for img_title, img_file in [
-        ("Boxplot", "boxplot.png"),
-        ("Heatmap (Top 30 variable genes)", "heatmap.png"),
-        ("Heatmap (Top 100 variable genes)", "heatmap_top_100.png"),
-        ("PCA Plot", "pca_plot.png")
-    ]:
-        img_path = output_dir / img_file
-        if img_path.exists():
-            pdf.add_page()
-            pdf.section_title(img_title)
-            pdf.image(str(img_path), x=10, y=30, w=180)
-
     report_path = output_dir / "report.pdf"
     pdf.output(str(report_path))
 
@@ -97,20 +86,35 @@ def export_analysis_files(output_dir: Path, analysis: dict, qa_result: dict):
             writer.writerow([key, value])
 
 def plot_pca(df: pd.DataFrame, output_dir: Path):
-    if df.shape[1] < 2:
-        print("⚠️ Skipping PCA: not enough samples.")
+    """
+    Generate and save a 3D PCA scatter plot from gene expression matrix.
+    """
+    if df.shape[1] < 3:
+        print("⚠️ Skipping PCA: not enough samples for 3D.")
         return
 
-    df = df.dropna(axis=1, how='any')
-    pca = PCA(n_components=2)
-    transformed = pca.fit_transform(df.T)
+    # Clean and normalize the data
+    df_clean = df.dropna(axis=1, how='any')
+    scaled_data = StandardScaler().fit_transform(df_clean.T)
 
-    plt.figure(figsize=(8, 6))
-    sns.scatterplot(x=transformed[:, 0], y=transformed[:, 1])
-    plt.title("PCA Plot of Samples")
-    plt.xlabel("PC1")
-    plt.ylabel("PC2")
-    plt.grid(True)
+    # Apply 3D PCA
+    pca = PCA(n_components=3)
+    pca_result = pca.fit_transform(scaled_data)
+
+    # Create the 3D plot
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
+
+    ax.scatter(
+        pca_result[:, 0], pca_result[:, 1], pca_result[:, 2],
+        c='steelblue', s=60, edgecolor='black'
+    )
+
+    ax.set_title("3D PCA Plot of Samples", fontsize=14)
+    ax.set_xlabel(f"PC1 ({pca.explained_variance_ratio_[0]*100:.1f}%)", fontsize=12)
+    ax.set_ylabel(f"PC2 ({pca.explained_variance_ratio_[1]*100:.1f}%)", fontsize=12)
+    ax.set_zlabel(f"PC3 ({pca.explained_variance_ratio_[2]*100:.1f}%)", fontsize=12)
+
     plt.tight_layout()
-    plt.savefig(output_dir / "pca_plot.png")
+    plt.savefig(output_dir / "pca_plot_3d.png", dpi=300)
     plt.close()

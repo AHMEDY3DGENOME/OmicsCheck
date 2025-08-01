@@ -6,11 +6,10 @@ from omicscheck import (
     parse_series_matrix,
     analyze_expression_matrix,
     plot_boxplot,
-    plot_heatmap,
     generate_pdf_report,
 )
 from omicscheck.utils import get_output_path
-from omicscheck.visualizer import plot_heatmap_top_genes
+from omicscheck.visualizer import plot_gene_expression_network
 from omicscheck.reporter import plot_pca, export_analysis_files
 from omicscheck.qa_score import evaluate_study
 import pandas as pd
@@ -18,7 +17,6 @@ import logging
 import numpy as np
 
 SUPPORTED_EXTENSIONS = [".txt", ".csv", ".tsv", ".xlsx", ".soft", ".gz"]
-
 
 def setup_logger(gse_id: str, output_dir: Path) -> logging.Logger:
     logger = logging.getLogger(gse_id)
@@ -35,7 +33,6 @@ def setup_logger(gse_id: str, output_dir: Path) -> logging.Logger:
 
 app = typer.Typer()
 
-
 def auto_orient_dataframe(df: pd.DataFrame, logger) -> tuple[pd.DataFrame, str]:
     if df.shape[0] < df.shape[1]:
         try:
@@ -48,7 +45,6 @@ def auto_orient_dataframe(df: pd.DataFrame, logger) -> tuple[pd.DataFrame, str]:
             return df.T, "Matrix was transposed due to parsing issue."
     return df, "Matrix orientation was correct."
 
-
 def suggest_log2_transform(df: pd.DataFrame, logger) -> str:
     values = df.values.flatten()
     finite_vals = values[np.isfinite(values)]
@@ -60,7 +56,6 @@ def suggest_log2_transform(df: pd.DataFrame, logger) -> str:
         return "Log2 transformation is recommended due to data skewness."
     return "No transformation applied"
 
-
 def filter_variable_genes(df: pd.DataFrame, top_n: int = 1000, logger=None) -> pd.DataFrame:
     variances = df.var(axis=1)
     top_genes = variances.sort_values(ascending=False).head(top_n).index
@@ -68,7 +63,6 @@ def filter_variable_genes(df: pd.DataFrame, top_n: int = 1000, logger=None) -> p
     if logger:
         logger.info(f"Filtered top {top_n} variable genes from matrix of shape {df.shape} → {filtered_df.shape}")
     return filtered_df
-
 
 @app.command()
 def run(gse_id: str):
@@ -111,9 +105,8 @@ def run(gse_id: str):
             # Step 5: Plotting
             progress.update(task, description="📊 Plotting charts", advance=1)
             plot_boxplot(df, output_dir)
-            plot_heatmap(df, output_dir)
-            plot_heatmap_top_genes(df, output_dir, top_n=100)
             plot_pca(df, output_dir)
+            plot_gene_expression_network(df, output_dir, top_n=50, corr_threshold=0.9)
             logger.info("Plots generated.")
 
             # Step 6: Report and Export
