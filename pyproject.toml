@@ -1,6 +1,6 @@
 [project]
 name = "omicscheck"
-version = "1.0.0"
+version = "1.0.1"
 description = "A lightweight tool to inspect GEO series matrices online before downloading."
 authors = [
     { name = "AHMED YASSIN || COMPUTATIONAL BIOLOGIST", email = "ahmedyassin300@outlook.com" }
