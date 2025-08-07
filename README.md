@@ -72,13 +72,22 @@ Example report: `docs/report_example.pdf`
 
 ---
 
+# OmicsCheck
+
+A smart pre-download screening tool for high-quality omics datasets.
+
+[![PyPI version](https://img.shields.io/pypi/v/OmicsCheck.svg)](https://pypi.org/project/OmicsCheck/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![DOI](https://img.shields.io/badge/DOI-10.21203/rs.3.rs--7297713--v1-blue)](https://doi.org/10.21203/rs.3.rs-7297713/v1)
+
+---
+
 ##  Citation
 
-If you use **OmicsCheck** in your research, please cite:
+> Ahmed Yassin. *OmicsCheck Enables Improved Selection of High-Quality Gene Expression Datasets: A Pre-download Screening Tool with Biological Impact Assessment*.  
+> Research Square (2025).  
+> [https://doi.org/10.21203/rs.3.rs-7297713/v1](https://doi.org/10.21203/rs.3.rs-7297713/v1)
 
-```
-OmicsCheck: Intelligent Pre-Analysis Quality Evaluation for Gene Expression Datasets. (2025). Bioinformatics Tool Suite. DOI:10.xxxx/omicscheck
-```
 
 ---
 
@@ -91,7 +100,7 @@ We welcome contributions! Fork the repo and submit a pull request.
 ##  Contact
 
 Lead Developer: [AHMED YASSIN || Computational Biologist]  
-Email: [your.email@domain.com]  
+Email: [Ahmedyassin300@outlook.com]  
 Project Page: [https://github.com/AHMEDY3DGENOME/OmicsCheck]
 
 ---
